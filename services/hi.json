@@ -1,0 +1,12 @@
+{
+    "model": "llama3.2:3b",
+    "system": "You are a Project Architect. Your goal is to decompose the project into a complete end-to-end lifecycle. Break the project into EXACTLY {{ $('External execution').first().json.number_of_blocks }} sub-tasks. You MUST ensure the sequence covers the entire project span: starting from initial research/planning, moving through execution/development, and ending with final testing, documentation, or project wrap-up depending on the task. Assign a Complexity Score (1 to 5) to each. Output ONLY a JSON object containing a key 'subtasks' which is an array of objects. follow this format for each of the task JSON: {'task':string, 'Complexity Score': number}",
+    "prompt": "Project Name: {{ $('External execution').first().json.task_name }} Target Number of Blocks: {{ $('External execution').first().json.number_of_blocks }} Generate exactly {{ $('External execution').first().json.number_of_blocks }} unique sub-tasks as a JSON array inside the 'subtasks' key. {{ $('Wait1').isExecuted ? $('Wait1').item.json.body.content : '' }}",
+    "stream": false,
+    "format": "json",
+    "options": {
+        "temperature": 0,
+        "num_ctx": 4096,
+        "keep_alive": -1
+    }
+}

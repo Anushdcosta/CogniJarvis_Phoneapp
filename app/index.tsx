@@ -1,6 +1,5 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
@@ -9,11 +8,12 @@ export default function WelcomeScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                <FontAwesome name="rocket" size={80} color="#007AFF" style={styles.icon} />
-                <Text style={styles.title}>Welcome!</Text>
-                <Text style={styles.subtitle}>
-                    This is your brand new landing page.
-                </Text>
+                <Image
+                    source={require('../assets/images/logo.png')}
+                    style={{ width: 200, height: 200, marginBottom: 20, borderRadius: 100 }}
+                    resizeMode="contain"
+                />
+                <Text style={styles.title}>Welcome to Cogni-Jarvis Config-App!</Text>
             </View>
             <TouchableOpacity
                 style={styles.button}
@@ -42,10 +42,11 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     title: {
-        fontSize: 32,
+        fontSize: 31,
         fontWeight: '800',
         color: '#1A1A1A',
         marginBottom: 12,
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 16,

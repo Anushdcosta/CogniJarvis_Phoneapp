@@ -1,10 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { Animated, Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BleManager } from 'react-native-ble-plx';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Animated, Dimensions, PermissionsAndroid, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BleManager, State } from 'react-native-ble-plx';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { btService } from '../services/BluetoothService';
 // Initialize Manager outside the component to avoid re-renders
 const manager = new BleManager();
 
@@ -16,6 +17,46 @@ export default function QRcodeScanner() {
     const [isConnecting, setIsConnecting] = useState(false);
     const [scanned, setScanned] = useState(false);
     const router = useRouter();
+    const isScanning = useRef(false);
+    const requestBluetoothPermissions = async () => {
+        if (Platform.OS === 'android') {
+            // Android 12 (API 31) and above require specific Bluetooth permissions
+            if (Platform.Version >= 31) {
+                const result = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+                    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                ]);
+
+                return (
+                    result['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED &&
+                    result['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED
+                );
+            } else {
+                // Android 11 and below only need Location to scan
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+                );
+                return granted === PermissionsAndroid.RESULTS.GRANTED;
+            }
+        }
+        return true;
+    };
+
+
+    useEffect(() => {
+        const checkPermissions = async () => {
+            const granted = await requestBluetoothPermissions();
+            if (!granted) {
+                Alert.alert(
+                    "Permission Denied",
+                    "This app needs Bluetooth and Location permissions to connect to your laptop."
+                );
+            }
+        };
+
+        checkPermissions();
+    }, []);
 
     // Animation value for the frame closing in
     const animValue = useRef(new Animated.Value(0)).current;
@@ -53,42 +94,79 @@ export default function QRcodeScanner() {
         }).start();
     };
 
+    // 1. Add this at the top of your component
+
+
+    // 2. Update the function
     const handleBarcodeScanned = async ({ data }: { data: string }) => {
-        if (scanned) return;
-        setScanned(true);
+        // IMMEDIATE LOCK using the Ref
+        if (isScanning.current) return;
+        isScanning.current = true;
+
+        setScanned(true); // For UI
         setIsConnecting(true);
 
+        console.log("--- SCAN LOCK ACTIVE ---");
+
         try {
-            // 1. Validate if data is a MAC Address (Optional but recommended)
-            console.log("Connecting to:", data);
-
-            // 2. Connect to the device scanned from QR
-            // 'data' should be the MAC address from your Ubuntu/Pi script
-            const device = await manager.connectToDevice(data);
-
-            // 3. Discover services and characteristics
-            await device.discoverAllServicesAndCharacteristics();
-
-            console.log("Connected Successfully!");
-
-            // 4. Trigger success animation
-            Animated.timing(animValue, {
-                toValue: 1,
-                duration: 350,
-                useNativeDriver: true,
-            }).start(() => {
-                router.replace({
-                    pathname: '/(tabs)',
-                    params: { deviceId: device.id } // Pass ID to manage it in the next screen
-                });
-            });
-
-        } catch (error) {
-            console.error("Connection failed", error);
-            alert("Could not connect to the device. Make sure Bluetooth is on.");
-            setScanned(false);
-            setIsConnecting(false);
+            const btState = await manager.state();
+            if (btState !== State.PoweredOn) {
+                console.log(`Scan Error: Bluetooth is currently ${btState}. Cannot start scan.`);
+                isScanning.current = false;
+                setIsConnecting(false);
+                setScanned(false);
+                return;
+            }
+        } catch (e) {
+            console.log("Error checking Bluetooth state:", e);
         }
+
+        manager.startDeviceScan(null, null, async (error, device) => {
+            if (error) {
+                console.log("Scan Error:", error);
+                isScanning.current = false;
+                setIsConnecting(false);
+                return;
+            }
+
+            if (device && (device.id === data || device.name === "PiProject")) {
+                manager.stopDeviceScan();
+
+                try {
+                    console.log("--- STARTING CONNECTION ---");
+                    const connectedDevice = await device.connect();
+
+                    // 1. Force the phone to wait for the service map
+                    console.log("Step 1: Discovering Services...");
+                    await connectedDevice.discoverAllServicesAndCharacteristics();
+
+                    const services = await connectedDevice.services();
+                    console.log("Services found:", services.map(s => s.uuid));
+
+                    const characteristics = await connectedDevice.characteristicsForService("0000beef-0000-1000-8000-00805f9b34fb");
+                    console.log("Characteristics found:", characteristics.map(c => c.uuid));
+
+                    // 2. Add a 'Settling' delay (Crucial for Linux/BlueZ)
+                    // This gives the Raspberry Pi a moment to stabilize the GATT table
+                    console.log("Step 2: Waiting for stability...");
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    // 3. Store the device globally
+                    btService.setDevice(connectedDevice);
+
+                    // 4. Finally, send the handshake
+                    console.log("Step 3: Sending Handshake...");
+                    await btService.sendMessage("Hello");
+
+                    console.log("SUCCESS! Connection is rock solid.");
+                    router.replace('/(tabs)');
+                } catch (err) {
+                    console.log("Connection failed at some stage:", err);
+                    isScanning.current = false;
+                    setIsConnecting(false);
+                }
+            }
+        });
     };
 
     const offset = scanAreaSize / 4; // The distance to move inwards
@@ -120,57 +198,45 @@ export default function QRcodeScanner() {
 
     return (
         <View style={styles.container}>
+            {/* Camera is now a standalone background layer */}
             <CameraView
-                style={styles.camera}
+                style={StyleSheet.absoluteFillObject}
                 onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
                 barcodeScannerSettings={{
                     barcodeTypes: ['qr'],
                 }}
-            >
-                {/* Full screen overlay */}
-                <View style={styles.overlay}>
+            />
 
-                    {/* Top Overlay Section */}
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, paddingBottom: 20 }}>
-                        <SafeAreaView>
-                            <View style={styles.header}>
-                                <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/Instructions")}>
-                                    <FontAwesome name="angle-left" size={32} color="#FFFFFF" />
-                                </TouchableOpacity>
-                                <Text style={styles.headerTitle}>Scan QR Code</Text>
-                                <View style={styles.backButton} /> {/* Placeholder for centering */}
-                            </View>
-                        </SafeAreaView>
+            {/* The UI Overlay is now explicitly on top */}
+            <View style={styles.overlay} pointerEvents="box-none">
+                {isConnecting && (
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color="#ff7b00ff" />
+                        <Text style={styles.loadingText}>Connecting to Pi...</Text>
                     </View>
+                )}
 
-                    {/* Middle Cutout Section (Target) */}
-                    <View style={styles.focusedContainer}>
-                        {/* Target Frame Corners Animated */}
-                        <Animated.View style={[styles.corner, styles.topLeftCorner, topLeftStyle]} />
-                        <Animated.View style={[styles.corner, styles.topRightCorner, topRightStyle]} />
-                        <Animated.View style={[styles.corner, styles.bottomLeftCorner, bottomLeftStyle]} />
-                        <Animated.View style={[styles.corner, styles.bottomRightCorner, bottomRightStyle]} />
-                    </View>
-
-                    {/* Bottom Overlay Section */}
-                    <View style={{ position: 'absolute', bottom: 100, left: 0, right: 0, paddingHorizontal: 32 }}>
-                        <Text style={styles.instructionText}>
-                            Align the machine's QR code within the frame to scan
-                        </Text>
-
-                        {scanned && (
-                            <TouchableOpacity
-                                style={styles.rescanButton}
-                                onPress={resetScan}
-                            >
-                                <FontAwesome name="refresh" size={20} color="#FFFFFF" style={styles.rescanIcon} />
-                                <Text style={styles.rescanButtonText}>Tap to Scan Again</Text>
+                {/* Top Header */}
+                <View style={styles.headerContainer}>
+                    <SafeAreaView edges={['top']}>
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => router.replace("/Instructions")}>
+                                <FontAwesome name="angle-left" size={32} color="#FFFFFF" />
                             </TouchableOpacity>
-                        )}
-                    </View>
-
+                            <Text style={styles.headerTitle}>Scan QR Code</Text>
+                            <View style={{ width: 32 }} />
+                        </View>
+                    </SafeAreaView>
                 </View>
-            </CameraView>
+
+                {/* Middle Scanning Frame */}
+                <View style={styles.focusedContainer}>
+                    <Animated.View style={[styles.corner, styles.topLeftCorner, topLeftStyle]} />
+                    <Animated.View style={[styles.corner, styles.topRightCorner, topRightStyle]} />
+                    <Animated.View style={[styles.corner, styles.bottomLeftCorner, bottomLeftStyle]} />
+                    <Animated.View style={[styles.corner, styles.bottomRightCorner, bottomRightStyle]} />
+                </View>
+            </View>
         </View>
     );
 }
@@ -179,6 +245,25 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#000',
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    loadingText: {
+        color: '#FFFFFF',
+        marginTop: 10,
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    headerContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
     },
     permissionScreen: {
         flex: 1,

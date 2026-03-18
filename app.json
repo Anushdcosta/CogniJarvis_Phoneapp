@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "phone_app",
-    "slug": "phone_app",
+    "name": "Cogni-Jarvis",
+    "slug": "cogni-jarvis",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "phoneapp",
+    "scheme": "cognijarvis",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.anushdcosta.cogni-jarvis"
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -35,6 +36,7 @@
       [
         "expo-splash-screen",
         {
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -51,6 +53,13 @@
             "central"
           ],
           "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to your laptop project."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to use your microphone",
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to use speech recognition"
         }
       ]
     ],

@@ -1,8 +1,25 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Instructions() {
+    const [hasDevice, setHasDevice] = useState(false);
+
+    useEffect(() => {
+        const checkDevice = async () => {
+            try {
+                const savedId = await AsyncStorage.getItem('@last_device_id');
+                if (savedId) {
+                    setHasDevice(true);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        };
+        checkDevice();
+    }, []);
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
@@ -71,10 +88,16 @@ export default function Instructions() {
             </View>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.replace('/QRcodeScanner')}
+                onPress={() => {
+                    if (hasDevice) {
+                        router.replace('/(tabs)');
+                    } else {
+                        router.replace('/QRcodeScanner');
+                    }
+                }}
                 activeOpacity={0.8}
             >
-                <Text style={styles.buttonText}>Scan QR Code</Text>
+                <Text style={styles.buttonText}>{hasDevice ? "Start App" : "Scan QR Code"}</Text>
             </TouchableOpacity>
             <View style={styles.footer}>
                 <Text style={styles.footerText}>

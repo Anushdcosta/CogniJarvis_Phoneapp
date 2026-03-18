@@ -1,0 +1,292 @@
+diff --git a/node_modules/react-native-http-bridge/android/build.gradle b/node_modules/react-native-http-bridge/android/build.gradle
+index 9417a5f..9a5d70e 100644
+--- a/node_modules/react-native-http-bridge/android/build.gradle
++++ b/node_modules/react-native-http-bridge/android/build.gradle
+@@ -1,40 +1,43 @@
++def safeExtGet(prop, fallback) {
++    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
++}
++
+ buildscript {
+     repositories {
+-        jcenter()
++        google()
++        mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:2.2.0'
++        classpath("com.android.tools.build:gradle:7.4.2")
+     }
+ }
+ 
+ allprojects {
+     repositories {
+-        jcenter()
++        google()
++        mavenCentral()
+     }
+ }
+ 
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 26
+-    buildToolsVersion "26.0.2"
++    compileSdkVersion safeExtGet('compileSdkVersion', 34)
++    buildToolsVersion safeExtGet('buildToolsVersion', "34.0.0")
+ 
+     defaultConfig {
+-        minSdkVersion 16
+-        targetSdkVersion 22
++        minSdkVersion safeExtGet('minSdkVersion', 21)
++        targetSdkVersion safeExtGet('targetSdkVersion', 34)
+         versionCode 2
+         versionName "1.1"
+-        ndk {
+-            abiFilters "armeabi-v7a", "x86"
+-        }
+     }
+     lintOptions {
+        warning 'InvalidPackage'
+     }
++    namespace "me.alwx.HttpServer"
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
+-    compile 'com.google.android.gms:play-services-gcm:+'
+-    compile 'org.nanohttpd:nanohttpd:2.3.1'
++    implementation 'com.facebook.react:react-native:+'
++    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+ }
+diff --git a/node_modules/react-native-http-bridge/android/build/generated/source/buildConfig/debug/me/alwx/HttpServer/BuildConfig.java b/node_modules/react-native-http-bridge/android/build/generated/source/buildConfig/debug/me/alwx/HttpServer/BuildConfig.java
+new file mode 100644
+index 0000000..28e1ba7
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/generated/source/buildConfig/debug/me/alwx/HttpServer/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package me.alwx.HttpServer;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "me.alwx.HttpServer";
++  public static final String BUILD_TYPE = "debug";
++}
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..636d3dd
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="me.alwx.HttpServer" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..a8d8e1b
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "me.alwx.HttpServer",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/react-native-http-bridge/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/react-native-http-bridge/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/react-native-http-bridge/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..16d981d
+Binary files /dev/null and b/node_modules/react-native-http-bridge/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/react-native-http-bridge/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..284580d
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Mon Mar 09 11:35:34 GST 2026
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..f6ce3b7
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugAssets/merger.xml b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+new file mode 100644
+index 0000000..b47c21d
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/build/intermediates/shader_assets/debug/compileDebugShaders/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..c7bc710
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..12c58f9
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/react-native-http-bridge/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/react-native-http-bridge/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..8aeae88
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,11 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="me.alwx.HttpServer" >
++4
++5    <uses-sdk android:minSdkVersion="24" />
++6
++7    <uses-permission android:name="android.permission.INTERNET" />
++7-->/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:4:11-89
++7-->/home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:4:28-70
++8
++9</manifest>
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/react-native-http-bridge/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..636d3dd
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="me.alwx.HttpServer" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/react-native-http-bridge/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/react-native-http-bridge/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/react-native-http-bridge/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/react-native-http-bridge/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..d07631d
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1 @@
++me.alwx.HttpServer
+diff --git a/node_modules/react-native-http-bridge/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-http-bridge/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..ff5b935
+--- /dev/null
++++ b/node_modules/react-native-http-bridge/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,21 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:1:1-6:12
++INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:1:1-6:12
++	package
++		ADDED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:2:11-39
++		INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:1:11-69
++uses-permission#android.permission.INTERNET
++ADDED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:4:11-89
++	android:name
++		ADDED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml:4:28-70
++uses-sdk
++INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml
++INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /home/anush-dcosta/Desktop/phone_app/node_modules/react-native-http-bridge/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-http-bridge/android/src/main/java/me/alwx/HttpServer/Server.java b/node_modules/react-native-http-bridge/android/src/main/java/me/alwx/HttpServer/Server.java
+index decf9f2..d6606fd 100644
+--- a/node_modules/react-native-http-bridge/android/src/main/java/me/alwx/HttpServer/Server.java
++++ b/node_modules/react-native-http-bridge/android/src/main/java/me/alwx/HttpServer/Server.java
+@@ -14,7 +14,7 @@ import java.util.Set;
+ import java.util.HashMap;
+ import java.util.Random;
+ 
+-import android.support.annotation.Nullable;
++import androidx.annotation.Nullable;
+ import android.util.Log;
+ 
+ public class Server extends NanoHTTPD {
