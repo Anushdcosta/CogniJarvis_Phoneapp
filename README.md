@@ -1,50 +1,63 @@
-# Welcome to your Expo app 👋
+# Cogni-Jarvis Config App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This repository contains the mobile configuration app for the Cogni-Jarvis device platform.
 
-## Get started
+The app is built with Expo and React Native, and it provides a setup workflow for pairing a Cogni-Jarvis machine via QR code scanning and Bluetooth.
 
-1. Install dependencies
+## What this app does
 
-   ```bash
-   npm install
-   ```
+- Presents a welcome screen for the Cogni-Jarvis config experience
+- Guides users through machine setup and Bluetooth pairing
+- Scans the device QR code to identify the machine
+- Connects to the device over BLE and stores the last paired device
+- Provides a device dashboard for connection status and configuration access
 
-2. Start the app
+## Key screens
 
-   ```bash
-   npx expo start
-   ```
+- **Welcome**: Start the setup flow for Cogni-Jarvis
+- **Instructions**: Step-by-step device pairing and setup instructions
+- **QR Code Scanner**: Scan the device QR code and connect to the machine
+- **Device dashboard**: View connected device status and enter configuration
 
-In the output, you'll find options to open the app in a
+## Run locally
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start the Expo development server:
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Project structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- `app/`: Expo Router screens and UI components
+- `app/(tabs)/`: main app dashboard and device configuration screens
+- `app/Instructions.tsx`: setup guide and pairing workflow
+- `app/QRcodeScanner.tsx`: QR scanner plus BLE connection logic
+- `services/BluetoothService.ts`: shared BLE helper service
+- `app.json`: Expo app metadata and bundle configuration
+- `package.json`: dependencies and scripts
 
-## Join the community
+## Notes
 
-Join our community of developers creating universal apps.
+- The app uses Expo Router for file-based routing
+- Bluetooth and camera permissions are required for QR scanning and device connection
+- Some device interactions rely on a backend webhook or local endpoint configured in the app
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Useful commands
+
+- `npm install` — install dependencies
+- `npx expo start` — launch the Expo development server
+- `npm run android` — run on Android device/emulator
+- `npm run ios` — run on iOS simulator/device
+- `npm run web` — run in a web browser
+- `npm run lint` — check code with ESLint
+
+## Contact
+
+If you need to update the app behavior or device workflow, modify the screens in `app/` and the Bluetooth flow in `services/BluetoothService.ts`.
