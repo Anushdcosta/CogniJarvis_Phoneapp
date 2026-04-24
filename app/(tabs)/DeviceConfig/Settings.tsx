@@ -6,9 +6,6 @@ import { Alert, Animated, KeyboardAvoidingView, Modal, Platform, ScrollView, Sta
 import { SafeAreaView } from "react-native-safe-area-context";
 import { btService } from '../../../services/BluetoothService';
 
-
-
-
 const CustomToggle = ({ label, icon, value, onToggle }: any) => {
     const [animatedValue] = useState(new Animated.Value(value ? 1 : 0));
 
@@ -156,7 +153,7 @@ const WheelColumn = ({ items, value, onValueChange, isLast }: { items: any[], va
                 scrollViewRef.current?.scrollTo({ y: initialIndex * ITEM_HEIGHT, animated: false });
             }, 100);
         }
-    }, []);
+    }, [value, items.length]);
 
     return (
         <View style={[styles.wheelColumn, !isLast && styles.wheelBorder]}>
@@ -186,11 +183,28 @@ const WheelColumn = ({ items, value, onValueChange, isLast }: { items: any[], va
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const BirthdayWheelPicker = ({ onAgeChange, onDOBChange, initialAge }: { onAgeChange: (age: string) => void, onDOBChange: (dob: string) => void, initialAge: string }) => {
+const BirthdayWheelPicker = ({ onAgeChange, onDOBChange, initialAge, initialDOB }: { onAgeChange: (age: string) => void, onDOBChange: (dob: string) => void, initialAge: string, initialDOB?: string }) => {
     const currentYear = new Date().getFullYear();
+    console.log("Initial DOB is: ", initialDOB);
     const [day, setDay] = useState(1);
     const [month, setMonth] = useState("Jan");
     const [year, setYear] = useState(currentYear - (parseInt(initialAge) || 8));
+
+    // Sync state when incoming props change (e.g. from settings pull)
+    React.useEffect(() => {
+        if (initialDOB) {
+            const parts = initialDOB.split('-');
+            if (parts.length === 3) {
+                const incomingYear = parseInt(parts[0], 10);
+                const incomingMonth = MONTHS[parseInt(parts[1], 10) - 1] || "Jan";
+                const incomingDay = parseInt(parts[2], 10);
+
+                setYear(prev => prev !== incomingYear ? incomingYear : prev);
+                setMonth(prev => prev !== incomingMonth ? incomingMonth : prev);
+                setDay(prev => prev !== incomingDay ? incomingDay : prev);
+            }
+        }
+    }, [initialDOB]);
 
     const monthIndex = MONTHS.indexOf(month);
     const maxDays = new Date(year, monthIndex + 1, 0).getDate();
@@ -213,7 +227,7 @@ const BirthdayWheelPicker = ({ onAgeChange, onDOBChange, initialAge }: { onAgeCh
             age--;
         }
         onAgeChange(age.toString());
-        
+
         const monthNum = monthIndex + 1;
         const monthStr = monthNum < 10 ? `0${monthNum}` : `${monthNum}`;
         const dayStr = day < 10 ? `0${day}` : `${day}`;
@@ -264,6 +278,7 @@ export default function DeviceConfigScreen() {
 
                     if (data[0].student_name !== undefined) setStudentName(data[0].student_name);
                     if (data[0].age_group !== undefined) setAgeGroup(data[0].age_group.toString());
+                    if (data[0].DOB !== undefined) setDOB(data[0].DOB);
                     if (data[0].support_level !== undefined) setSupportLevel(data[0].support_level.toString());
                     if (data[0].led_brightness !== undefined) setLedBrightness(data[0].led_brightness.toString());
                     if (data[0].support_level !== undefined) {
@@ -277,6 +292,7 @@ export default function DeviceConfigScreen() {
                     console.log("User Type is: ", data[0].current_mode?.toLowerCase());
                     console.log("Name is: ", data[0].student_name);
                     console.log("age_group is: ", data[0].age_group);
+                    console.log("DOB is: ", data[0].DOB);
                     console.log("Support Level is: ", data[0].support_level);
                     console.log("LED brightness is: ", data[0].led_brightness);
                     console.log("ADHD Type is: ", data[0].adhd_type);
@@ -405,6 +421,7 @@ export default function DeviceConfigScreen() {
                         <Text style={styles.label}>Date of Birth</Text>
                         <BirthdayWheelPicker
                             initialAge={ageGroup}
+                            initialDOB={dob}
                             onAgeChange={setAgeGroup}
                             onDOBChange={setDOB}
                         />

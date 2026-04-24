@@ -24,7 +24,8 @@
       "permissions": [
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
-        "android.permission.BLUETOOTH_CONNECT"
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.FOREGROUND_SERVICE"
       ],
       "package": "com.anushdcosta.cogni_jarvis"
     },
@@ -61,7 +62,8 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to use your microphone",
           "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to use speech recognition"
         }
-      ]
+      ],
+      "./plugins/withForegroundService.js"
     ],
     "experiments": {
       "typedRoutes": true,

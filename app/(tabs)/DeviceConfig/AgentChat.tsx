@@ -158,7 +158,9 @@ export default function AgentChat() {
                 currentServer.respond(request.requestId, 200, "application/json", '{"status": "ok"}');
                 console.log("Responded to health check");
                 return;
-            } if (request.type === 'POST' && request.url === '/n8n_trigger') {
+            }
+
+            if (request.type === 'POST' && request.url === '/n8n_trigger') {
                 try {
                     const rawBody = request.postData || request.body || '{}';
                     if (processedRequests.has(request.requestId)) {
@@ -334,8 +336,7 @@ export default function AgentChat() {
                     console.log("Server stopped.");
                 } catch (e) { }
 
-                // Significant: Only one listener should ever be registered at the native level
-                // if possible. Some versions of this bridge don't clear old listeners on stop().
+                // Ensure only one listener is registered at the native level
                 currentServer.start(8080, 'n8n_server', (request: any) => {
                     if (globalServerCallback) {
                         globalServerCallback(request);

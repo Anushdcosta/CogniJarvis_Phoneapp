@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
     const router = useRouter();
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
@@ -17,7 +16,7 @@ export default function WelcomeScreen() {
             </View>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.replace('/Instructions')}
+                onPress={() => { router.replace('/Instructions') }}
                 activeOpacity={0.8}
             >
                 <Text style={styles.buttonText}>Get Started</Text>
